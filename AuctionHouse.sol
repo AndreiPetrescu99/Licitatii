@@ -17,6 +17,7 @@ contract AuctionHouse is Ownable{
     mapping (address => uint) bidderBidCount;
     
     bool isBidOpen = false;
+    bool sold = false;
     
     event NewHighestBid(uint highest_bid, address highest_bider);
     event WinnerOfBid(uint winner_amount, address winner);
@@ -37,10 +38,12 @@ contract AuctionHouse is Ownable{
     //event pentru instiintarea ca cineva a licitat mai mult
     //pentru primul bid al msg.sender se percepe o taxa (procent din bid sau ceva de genu)
     //bidderul trebuie sa detina si taxa
-    function placeBid(uint amount) public payable bidOpen{
+    function placeBid(uint amount) external payable bidOpen{
+        uint check = msg.value;
         if(bidderBidCount[msg.sender] == 0){
             require(msg.value == firstBidFee);
         }
+        uint sender_balance = msg.sender.balance;
         require(msg.sender.balance > current_highest_bid && amount > current_highest_bid);
         nrOfBids += 1;
         current_highest_bid = amount;
@@ -81,10 +84,17 @@ contract AuctionHouse is Ownable{
     //suma retrasa este cea stabilita dupa ce se anunta castigatorul
     //Winnerul primeste un cod secret care deblocheaza premiul
     function claimReward() external payable returns(uint){
-        require(msg.sender == winner_address && msg.value == winner_required_amount);
+        address winner = winner_address;
+        uint wei_amount = winner_required_amount * 10e17;
+        uint sent = msg.value;
+        address claimer = msg.sender;
+        require(claimer == winner_address && sent == wei_amount);
         winner_required_amount = 0;
         winner_address = address(0x0);
-        return secretToUnlockPrize;
+        uint prize = secretToUnlockPrize;
+        secretToUnlockPrize = 0;
+        sold = true;
+        return prize;
     }
     
     //Vizualizeaza suma curenta
@@ -102,11 +112,18 @@ contract AuctionHouse is Ownable{
         return description;
     }
     
+    //Verifica daca s-a achitat pretul
+    function checkIfSold() external view onlyOwner returns(bool){
+        return sold;
+    }
+    
     //Ownerul creaza o licitatie
     //Ca input ar trebui o descriere si un starting price
-    function createBid(string memory _description, uint _price) external onlyOwner{
+    function createBid(string memory _description, uint _price, uint _secret) external onlyOwner{
         description = _description;
         current_highest_bid = _price;
+        secretToUnlockPrize = _secret;
+        sold = false;
     }
     
     
