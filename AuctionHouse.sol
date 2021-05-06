@@ -52,6 +52,10 @@ contract AuctionHouse is Ownable{
         emit NewHighestBid(current_highest_bid,current_highest_bider);
     }
     
+    function withdraw() external onlyOwner{
+        address payable _owner = payable(owner());
+        _owner.transfer(address(this).balance);
+    }
     
     //Licitatia se opreste
     //Doar detinatorul licitatie poate opri Licitatia
@@ -77,6 +81,7 @@ contract AuctionHouse is Ownable{
             emit BidStarted(description,current_highest_bid);
         }
     }
+    
     
     //Winnerul plateste cat a licitat
     //Winnerul trebuie sa detina suma
