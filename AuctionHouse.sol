@@ -28,9 +28,6 @@ contract AuctionHouse is Ownable{
         _;
     }
     
-    //ATRIBUTELE LE STABILESTI DIN MERS DACA NU EXISTA CEVA DEJA CREAT
-    //PENTRU CONDITII E BINE SA FOLOSIM MODFIERS DACA E CEVA GENERAL
-    
     //Functie pentru plasare de licitatii
     //amount > current_highest_bid
     //bidderul sa detina suma respectiva
@@ -138,6 +135,4 @@ contract AuctionHouse is Ownable{
             current_highest_bid = _newPrice;
         }
     }
-    
-    //ALTE FUNCTII DACA MAI DORESTI TU ZOLIK SI MAI AI IDEI
 }
